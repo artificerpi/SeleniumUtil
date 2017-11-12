@@ -1,0 +1,18 @@
+apply plugin: 'java'
+
+apply plugin: 'eclipse'
+
+repositories {
+//    jcenter()
+	mavenCentral()
+}
+
+dependencies {
+	compile group: 'org.dom4j', name: 'dom4j', version: '2.1.0'
+    compile group: 'commons-io', name: 'commons-io', version: '2.5'
+    compile group: 'org.apache.commons', name: 'commons-compress', version: '1.15'
+
+    testCompile 'junit:junit:4.12'
+}
+
+
