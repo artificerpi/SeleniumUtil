@@ -15,5 +15,7 @@ gradle-app.setting
 # gradle/wrapper/gradle-wrapper.properties
 
 /webdriver/
+/.settings/
 .project
+.classpath
 
