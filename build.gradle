@@ -1,18 +1,79 @@
 apply plugin: 'java'
-
 apply plugin: 'eclipse'
 
 repositories {
-//    jcenter()
 	mavenCentral()
+    jcenter()
 }
 
 dependencies {
 	compile group: 'org.dom4j', name: 'dom4j', version: '2.1.0'
     compile group: 'commons-io', name: 'commons-io', version: '2.5'
-    compile group: 'org.apache.commons', name: 'commons-compress', version: '1.15'
 
     testCompile 'junit:junit:4.12'
+    testCompile group: 'org.seleniumhq.selenium', name: 'selenium-server', version: '3.7.1'
+
+}
+
+task fatJar(type: Jar) {
+    manifest {
+        attributes 'Implementation-Title': 'Selenium Util',
+            'Implementation-Version': 1.0,
+            'Main-Class': 'wow.artificerpi.tools.App'
+    }
+    baseName = 'selenium-downloader'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
+task file
+
+import org.gradle.internal.os.OperatingSystem;
+task setupLocal(dependsOn: 'fatJar'){
+	mkdir 'webdriver'
+	
+	doFirst{
+		def proxyHost = project.hasProperty('proxyHost') ? project.findProperty('proxyHost') : '';
+		def proxyPort = project.hasProperty('proxyPort') ? project.findProperty('proxyPort') : '';
+		
+		if(project.hasProperty('proxyHost')) {
+			println("Using proxy: ${proxyHost}:" + "${proxyPort}")
+		}
+		
+		project.exec {
+			   commandLine('java',
+					   "-Dhttp.proxyHost=${proxyHost}",
+					   "-Dhttp.proxyPort=${proxyPort}",
+					   "-Dhttps.proxyHost=${proxyHost}",
+					   "-Dhttps.proxyPort=${proxyPort}",
+					   '-Dhttp.nonProxyHosts=127.0.0.1', 
+					   '-jar', 'build/libs/selenium-downloader.jar')
+		}
+		
+		if(OperatingSystem.current().isLinux()){
+			project.exec {
+				   commandLine('chmod',  '+x', 'webdriver/chromedriver')
+			}
+	    }
+	}
+	
 }
 
 
+task runSelenium(type: Exec) {
+    String path = System.getenv('PATH')
+
+    doFirst{
+       String webdriverDir = "$projectDir/webdriver"
+       if(OperatingSystem.current().isWindows()){
+           path = path + ";" + webdriverDir
+       }
+
+       if(OperatingSystem.current().isLinux()){
+           path = path + ":" + webdriverDir
+       }
+
+       environment 'PATH', path 
+       commandLine 'java', '-jar', 'webdriver/selenium-server-standalone.jar'
+   }
+}
