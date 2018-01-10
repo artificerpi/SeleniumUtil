@@ -16,3 +16,7 @@ instead of `gradlew setupLocal`:
 # change it to your own
 ./gradlew setupLocal -PproxyHost=10.0.0.1 -PproxyPort=8118
 ```
+
+## Selenium Docker
+Run selenium grid with docker.
+https://github.com/SeleniumHQ/docker-selenium
