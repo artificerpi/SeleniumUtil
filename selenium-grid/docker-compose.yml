@@ -1,0 +1,56 @@
+version: '3.7'
+
+services:
+  hub:
+    image: selenium/hub:latest
+    networks: 
+      - selenium-grid
+    ports:
+      - 4444:4444
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+
+  chrome:
+    image: selenium/node-chrome:latest
+    volumes:
+      - /dev/shm:/dev/shm
+    environment:
+      HUB_HOST: hub
+    hostname: "{{.Service.Name}}-{{.Task.Slot}}"
+    entrypoint: bash -c 'SE_OPTS="-host $$HOSTNAME -port 5555" /opt/bin/entry_point.sh'
+    networks: 
+      - selenium-grid
+    ports:
+      - 5555
+    deploy:
+      replicas: 3
+      placement:
+        constraints:
+          - node.role == worker
+
+  firefox:
+    image: selenium/node-firefox:latest
+    volumes:
+      - /dev/shm:/dev/shm
+    environment:
+      HUB_HOST: hub
+    hostname: "{{.Service.Name}}-{{.Task.Slot}}"
+    entrypoint: bash -c 'SE_OPTS="-host $$HOSTNAME -port 5555" /opt/bin/entry_point.sh'
+    networks: 
+      - selenium-grid
+    ports:
+      - 5555
+    deploy:
+      replicas: 2
+      placement:
+        constraints:
+          - node.role == worker
+
+
+networks: 
+  selenium-grid:
+    driver: overlay
