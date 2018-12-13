@@ -20,7 +20,6 @@ services:
       - /dev/shm:/dev/shm
     environment:
       HUB_HOST: hub
-    hostname: "{{.Service.Name}}-{{.Task.Slot}}"
     entrypoint: bash -c 'SE_OPTS="-host $$HOSTNAME -port 5555" /opt/bin/entry_point.sh'
     networks: 
       - selenium-grid
@@ -38,7 +37,6 @@ services:
       - /dev/shm:/dev/shm
     environment:
       HUB_HOST: hub
-    hostname: "{{.Service.Name}}-{{.Task.Slot}}"
     entrypoint: bash -c 'SE_OPTS="-host $$HOSTNAME -port 5555" /opt/bin/entry_point.sh'
     networks: 
       - selenium-grid
